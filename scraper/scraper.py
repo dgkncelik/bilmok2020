@@ -72,6 +72,7 @@ class YemekSepetiScraper(object):
         }
         result = self.es.search(index='analyze-index', body=query)
         matches = result['hits']['hits']
+        print('%s matches found %s' % (len(matches), _body))
         if matches:
             for m in matches:
                 document['food_categories'].append(m['_source']['category'])
@@ -81,6 +82,7 @@ class YemekSepetiScraper(object):
         return self.es.index(index='document-index', body=document)
 
     def run(self):
+        count = 1
         city_url = '%s/%s' % (self.yemeksepeti_url, self.city_name)
         areas = self.get_city_areas(city_url)
         for area in areas:
@@ -99,6 +101,8 @@ class YemekSepetiScraper(object):
                     document["food_categories"] = []
                     document = self.analyze_by_elasticsearch(document)
                     self.index_to_elasticsearch(document)
+                    print('%s comment indexed' % count)
+                    count = count + 1
 
 
 if __name__ == '__main__':
